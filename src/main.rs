@@ -81,7 +81,7 @@ fn generate_data() -> (HashMap<CategoryId, Category>, HashMap<RestaurantId, Rest
     let ice_cream_category = Category::new("Ice Cream");
 
     let oddonos = Restaurant::new("Oddono's", ice_cream_category.id.clone(), Url::try_from("http://www.oddonos.com").unwrap());
-    let bilmonte = Restaurant::new("Bilmonte", ice_cream_category.id.clone(), Url::try_from("https://www.bilmonte.it").unwrap());
+    let bilmonte = Restaurant::new("Bilmont", ice_cream_category.id.clone(), Url::try_from("https://www.bilmonte.it").unwrap());
 
     let baked_goods_category = Category::new("Baked Goods");
 
