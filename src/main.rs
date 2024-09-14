@@ -5,33 +5,27 @@ use axum::extract::Path;
 use axum::http::StatusCode;
 use url::Url;
 
-mod model;
+mod category;
+mod restaurant;
 
-use model::category::Category;
-use model::restaurant::Restaurant;
-use crate::model::category::CategoryId;
-use crate::model::restaurant::RestaurantId;
+use crate::category::model::*;
+use crate::category::repository::*;
+use crate::restaurant::model::*;
+use crate::restaurant::repository::*;
 
 #[derive(Clone)]
-struct AppState {
-    categories: HashMap<CategoryId, Category>,
-    restaurants: HashMap<RestaurantId, Restaurant>
-}
-
-impl AppState {
-    fn new() -> Self {
-        let (categories, restaurants) = generate_data();
-
-        AppState {
-            categories,
-            restaurants
-        }
-    }
+struct AppState<CR: CategoryRepository, RR: RestaurantRepository> {
+    category_repository: Arc<CR>,
+    restaurant_repository: Arc<RR>,
 }
 
 #[tokio::main]
 async fn main() {
-    let shared_state = Arc::new(AppState::new());
+
+    let (categories, restaurants) = generate_data();
+
+    let category_repository = LocalCategoryRepository::new(categories);
+    let restaurant_repository = LocalRestaurantRepository::new(restaurants);
 
     // build our application with a single route
     let app = Router::new()
@@ -39,39 +33,45 @@ async fn main() {
         .route("/categories/:category_id", get(get_category_by_id))
         .route("/restaurants", get(get_restaurants))
         .route("/restaurants/:restaurant_id", get(get_restaurant_by_id))
-        .with_state(shared_state);
+        .with_state(AppState {
+            category_repository: Arc::new(category_repository),
+            restaurant_repository: Arc::new(restaurant_repository),
+        });
 
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
 
-async fn get_categories(state: State<Arc<AppState>>) -> Json<Vec<Category>> {
-    let categories = state.categories.values().cloned().collect();
+async fn get_categories<CR: CategoryRepository, RR: RestaurantRepository>(
+    State(state): State<AppState<CR, RR>>
+) -> Json<Vec<Category>> {
+    let categories = state.category_repository.get_all();
     Json(categories)
 }
 
-async fn get_restaurants(State(state): State<Arc<AppState>>) -> Json<Vec<Restaurant>> {
-    let restaurants = state.restaurants.values().cloned().collect();
+async fn get_restaurants<CR: CategoryRepository, RR: RestaurantRepository>(
+    State(state): State<AppState<CR, RR>>
+) -> Json<Vec<Restaurant>> {
+    let restaurants = state.restaurant_repository.get_all();
     Json(restaurants)
 }
 
-async fn get_category_by_id(
+async fn get_category_by_id<CR: CategoryRepository, RR: RestaurantRepository>(
     Path(category_id): Path<CategoryId>,
-    State(state): State<Arc<AppState>>) -> Result<Json<Category>, StatusCode> {
-    let categories = state.categories.clone();
-    match categories.get(&category_id) {
+    State(state): State<AppState<CR, RR>>
+) -> Result<Json<Category>, StatusCode> {
+    match state.category_repository.get(&category_id) {
         Some(category) => Ok(Json(category.clone())),
         None => Err(StatusCode::NOT_FOUND)
     }
 }
 
-async fn get_restaurant_by_id(
+async fn get_restaurant_by_id<CR: CategoryRepository, RR: RestaurantRepository>(
     Path(restaurant_id): Path<RestaurantId>,
-    State(state): State<Arc<AppState>>
+    State(state): State<AppState<CR, RR>>
 ) -> Result<Json<Restaurant>, StatusCode> {
-    let restaurants = state.restaurants.clone();
-    match restaurants.get(&restaurant_id) {
+    match state.restaurant_repository.get(&restaurant_id) {
         Some(restaurant) => Ok(Json(restaurant.clone())),
         None => Err(StatusCode::NOT_FOUND)
     }

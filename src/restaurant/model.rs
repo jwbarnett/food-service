@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use url::Url;
-use crate::model::category::CategoryId;
+use crate::category::model::CategoryId;
 
 #[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct RestaurantId(Uuid);
