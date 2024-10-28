@@ -3,6 +3,10 @@ use std::sync::Arc;
 use axum::{extract::State, routing::get, Json, Router};
 use axum::extract::Path;
 use axum::http::StatusCode;
+use axum::response::IntoResponse;
+use axum_template::engine::Engine;
+use axum_template::{Key, RenderHtml};
+use handlebars::{to_json, Handlebars};
 use url::Url;
 
 mod category;
@@ -17,6 +21,7 @@ use crate::restaurant::repository::*;
 struct AppState<CR: CategoryRepository, RR: RestaurantRepository> {
     category_repository: Arc<CR>,
     restaurant_repository: Arc<RR>,
+    template_engine: Engine<Handlebars<'static>>
 }
 
 #[tokio::main]
@@ -27,20 +32,36 @@ async fn main() {
     let category_repository = LocalCategoryRepository::new(categories);
     let restaurant_repository = LocalRestaurantRepository::new(restaurants);
 
+    let mut handlesbars = Handlebars::new();
+
+    handlesbars.register_template_file("base", "templates/base.hbs").unwrap();
+    handlesbars.register_template_file("/", "templates/home.hbs").unwrap();
+
     // build our application with a single route
     let app = Router::new()
         .route("/categories", get(get_categories))
         .route("/categories/:category_id", get(get_category_by_id))
         .route("/restaurants", get(get_restaurants))
         .route("/restaurants/:restaurant_id", get(get_restaurant_by_id))
+        .route("/", get(get_index))
         .with_state(AppState {
             category_repository: Arc::new(category_repository),
             restaurant_repository: Arc::new(restaurant_repository),
+            template_engine: Engine::from(handlesbars)
         });
 
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
+}
+
+async fn get_index<CR: CategoryRepository, RR: RestaurantRepository>(
+    State(AppState {category_repository, template_engine, ..}): State<AppState<CR, RR>>,
+    Key(key): Key
+) -> impl IntoResponse {
+    let categories = category_repository.get_all();
+    let data = HashMap::from([("categories", to_json(categories))]);
+    RenderHtml(key, template_engine, data)
 }
 
 async fn get_categories<CR: CategoryRepository, RR: RestaurantRepository>(
@@ -144,54 +165,54 @@ fn generate_data() -> (HashMap<CategoryId, Category>, HashMap<RestaurantId, Rest
     let darjeeling_express = Restaurant::new("Darjeeling Express", other_category.id.clone(), Url::try_from("https://www.darjeeling-express.com").unwrap());
 
     let categories = HashMap::from([
-        (ice_cream_category.id.clone(), ice_cream_category.clone()),
-        (baked_goods_category.id.clone(), baked_goods_category.clone()),
-        (chocolates_category.id.clone(), chocolates_category.clone()),
-        (steak_category.id.clone(), steak_category.clone()),
-        (pizza_category.id.clone(), pizza_category.clone()),
-        (italian_restaurants_category.id.clone(), italian_restaurants_category.clone()),
-        (japanese_restaurants_category.id.clone(), japanese_restaurants_category.clone()),
-        (coffee_category.id.clone(), coffee_category.clone()),
-        (brunch_category.id.clone(), brunch_category.clone()),
-        (other_category.id.clone(), other_category.clone()),
+        (ice_cream_category.id, ice_cream_category.clone()),
+        (baked_goods_category.id, baked_goods_category.clone()),
+        (chocolates_category.id, chocolates_category.clone()),
+        (steak_category.id, steak_category.clone()),
+        (pizza_category.id, pizza_category.clone()),
+        (italian_restaurants_category.id, italian_restaurants_category.clone()),
+        (japanese_restaurants_category.id, japanese_restaurants_category.clone()),
+        (coffee_category.id, coffee_category.clone()),
+        (brunch_category.id, brunch_category.clone()),
+        (other_category.id, other_category.clone()),
     ]);
 
     let restaurants = HashMap::from([
-        (oddonos.id.clone(), oddonos.clone()),
-        (bilmonte.id.clone(), bilmonte.clone()),
-        (crosstown.id.clone(), crosstown.clone()),
-        (crumbs_and_doilies.id.clone(), crumbs_and_doilies.clone()),
-        (buns_from_home.id.clone(), buns_from_home.clone()),
-        (ole_and_steen.id.clone(), ole_and_steen.clone()),
-        (xo_chocolate.id.clone(), xo_chocolate.clone()),
-        (laderach.id.clone(), laderach.clone()),
-        (blacklock.id.clone(), blacklock.clone()),
-        (flat_iron.id.clone(), flat_iron.clone()),
-        (heliot.id.clone(), heliot.clone()),
-        (yard_sale_pizza.id.clone(), yard_sale_pizza.clone()),
-        (pizza_pilgrims.id.clone(), pizza_pilgrims.clone()),
-        (world_famous_gordos.id.clone(), world_famous_gordos.clone()),
-        (alley_cats_pizza.id.clone(), alley_cats_pizza.clone()),
-        (bancone.id.clone(), bancone.clone()),
-        (padella.id.clone(), padella.clone()),
-        (circolo_popolaire.id.clone(), circolo_popolaire.clone()),
-        (gloria.id.clone(), gloria.clone()),
-        (ave_mario.id.clone(), ave_mario.clone()),
-        (luca.id.clone(), luca.clone()),
-        (zaibatsu.id.clone(), zaibatsu.clone()),
-        (sticks_n_sushi.id.clone(), sticks_n_sushi.clone()),
-        (kulu_kulu.id.clone(), kulu_kulu.clone()),
-        (maki_yaki.id.clone(), maki_yaki.clone()),
-        (kintan.id.clone(), kintan.clone()),
-        (kampai.id.clone(), kampai.clone()),
-        (formative.id.clone(), formative.clone()),
-        (julliets.id.clone(), julliets.clone()),
-        (dropshot.id.clone(), dropshot.clone()),
-        (utter_waffle.id.clone(), utter_waffle.clone()),
-        (roti_king.id.clone(), roti_king.clone()),
-        (dishoom.id.clone(), dishoom.clone()),
-        (golden_union.id.clone(), golden_union.clone()),
-        (darjeeling_express.id.clone(), darjeeling_express.clone()),
+        (oddonos.id, oddonos.clone()),
+        (bilmonte.id, bilmonte.clone()),
+        (crosstown.id, crosstown.clone()),
+        (crumbs_and_doilies.id, crumbs_and_doilies.clone()),
+        (buns_from_home.id, buns_from_home.clone()),
+        (ole_and_steen.id, ole_and_steen.clone()),
+        (xo_chocolate.id, xo_chocolate.clone()),
+        (laderach.id, laderach.clone()),
+        (blacklock.id, blacklock.clone()),
+        (flat_iron.id, flat_iron.clone()),
+        (heliot.id, heliot.clone()),
+        (yard_sale_pizza.id, yard_sale_pizza.clone()),
+        (pizza_pilgrims.id, pizza_pilgrims.clone()),
+        (world_famous_gordos.id, world_famous_gordos.clone()),
+        (alley_cats_pizza.id, alley_cats_pizza.clone()),
+        (bancone.id, bancone.clone()),
+        (padella.id, padella.clone()),
+        (circolo_popolaire.id, circolo_popolaire.clone()),
+        (gloria.id, gloria.clone()),
+        (ave_mario.id, ave_mario.clone()),
+        (luca.id, luca.clone()),
+        (zaibatsu.id, zaibatsu.clone()),
+        (sticks_n_sushi.id, sticks_n_sushi.clone()),
+        (kulu_kulu.id, kulu_kulu.clone()),
+        (maki_yaki.id, maki_yaki.clone()),
+        (kintan.id, kintan.clone()),
+        (kampai.id, kampai.clone()),
+        (formative.id, formative.clone()),
+        (julliets.id, julliets.clone()),
+        (dropshot.id, dropshot.clone()),
+        (utter_waffle.id, utter_waffle.clone()),
+        (roti_king.id, roti_king.clone()),
+        (dishoom.id, dishoom.clone()),
+        (golden_union.id, golden_union.clone()),
+        (darjeeling_express.id, darjeeling_express.clone()),
     ]);
 
     (categories, restaurants)

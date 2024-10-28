@@ -2,7 +2,7 @@ use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 
 
-#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct CategoryId(Uuid);
 
 #[derive(Clone, Serialize, Deserialize)]

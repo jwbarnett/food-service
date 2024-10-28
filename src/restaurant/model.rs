@@ -3,7 +3,7 @@ use uuid::Uuid;
 use url::Url;
 use crate::category::model::CategoryId;
 
-#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct RestaurantId(Uuid);
 
 

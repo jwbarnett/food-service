@@ -4,7 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-axum = "0.7.5"
+axum = "0.7.7"
+axum-template = { version = "2.4.0", features = ["handlebars"] }
+handlebars = "6.2.0"
 tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread"] }
 uuid = { version = "1.10.0", features = ["fast-rng", "v4", "serde"] }
 serde = { version = "1.0.210", features = ["derive"] }
