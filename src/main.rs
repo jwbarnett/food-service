@@ -1,15 +1,11 @@
-use std::collections::HashMap;
 use std::sync::Arc;
-use axum::{extract::State, routing::get, Json, Router};
-use axum::extract::Path;
-use axum::http::StatusCode;
-use axum::response::IntoResponse;
+use axum::{routing::get, Router};
 use axum_template::engine::Engine;
-use axum_template::{Key, RenderHtml};
-use handlebars::{to_json, Handlebars};
+use handlebars::Handlebars;
 use crate::aggregator::CategoryAggregator;
+use crate::api::{get_categories, get_category_by_id, get_restaurant_by_id, get_restaurants};
+use crate::construct_page::{construct_home_page, construct_list_page};
 use crate::local_data::generate_data;
-use crate::model::{Category, CategoryId, Restaurant, RestaurantId};
 use crate::repository::{CategoryRepository, RestaurantRepository};
 
 mod transport;
@@ -17,6 +13,8 @@ mod aggregator;
 mod repository;
 mod model;
 mod local_data;
+mod construct_page;
+mod api;
 
 #[derive(Clone)]
 struct AppState {
@@ -49,10 +47,9 @@ async fn main() {
         .route("/restaurants/:restaurant_id", get(get_restaurant_by_id));
 
     let page_routes = Router::new()
-        .route("/", get(get_home))
-        .route("/list", get(get_list));
+        .route("/", get(construct_home_page))
+        .route("/list", get(construct_list_page));
 
-    // build our application with a single route
     let app = Router::new()
         .nest("/api", api_routes)
         .nest("/", page_routes)
@@ -66,54 +63,4 @@ async fn main() {
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
-}
-
-async fn get_home(
-    State(AppState {template_engine, ..}): State<AppState>,
-    Key(key): Key
-) -> impl IntoResponse {
-    RenderHtml(key, template_engine, "")
-}
-
-async fn get_list(
-    State(AppState {category_aggregator, template_engine, ..}): State<AppState>,
-    Key(key): Key
-) -> impl IntoResponse {
-    let category_restaurants_mapping = category_aggregator.aggregate();
-    let data = HashMap::from([("categories", to_json(category_restaurants_mapping))]);
-    RenderHtml(key, template_engine, data)
-}
-
-async fn get_categories(
-    State(state): State<AppState>
-) -> Json<Vec<Category>> {
-    let categories = state.category_repository.get_all();
-    Json(categories)
-}
-
-async fn get_restaurants(
-    State(state): State<AppState>
-) -> Json<Vec<Restaurant>> {
-    let restaurants = state.restaurant_repository.get_all();
-    Json(restaurants)
-}
-
-async fn get_category_by_id(
-    Path(category_id): Path<CategoryId>,
-    State(state): State<AppState>
-) -> Result<Json<Category>, StatusCode> {
-    match state.category_repository.get(&category_id) {
-        Some(category) => Ok(Json(category.clone())),
-        None => Err(StatusCode::NOT_FOUND)
-    }
-}
-
-async fn get_restaurant_by_id(
-    Path(restaurant_id): Path<RestaurantId>,
-    State(state): State<AppState>
-) -> Result<Json<Restaurant>, StatusCode> {
-    match state.restaurant_repository.get(&restaurant_id) {
-        Some(restaurant) => Ok(Json(restaurant.clone())),
-        None => Err(StatusCode::NOT_FOUND)
-    }
 }
