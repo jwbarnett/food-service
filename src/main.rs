@@ -42,14 +42,20 @@ async fn main() {
     handlebars.register_template_file("/", "templates/home.hbs").unwrap();
     handlebars.register_template_file("/list", "templates/list.hbs").unwrap();
 
-    // build our application with a single route
-    let app = Router::new()
+    let api_routes = Router::new()
         .route("/categories", get(get_categories))
         .route("/categories/:category_id", get(get_category_by_id))
         .route("/restaurants", get(get_restaurants))
-        .route("/restaurants/:restaurant_id", get(get_restaurant_by_id))
+        .route("/restaurants/:restaurant_id", get(get_restaurant_by_id));
+
+    let page_routes = Router::new()
         .route("/", get(get_home))
-        .route("/list", get(get_list))
+        .route("/list", get(get_list));
+
+    // build our application with a single route
+    let app = Router::new()
+        .nest("/api", api_routes)
+        .nest("/", page_routes)
         .with_state(AppState {
             category_repository,
             restaurant_repository,
