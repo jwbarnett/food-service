@@ -4,7 +4,7 @@ use axum_template::engine::Engine;
 use handlebars::Handlebars;
 use crate::aggregator::CategoryAggregator;
 use crate::api::{get_categories, get_category_by_id, get_restaurant_by_id, get_restaurants};
-use crate::construct_page::{construct_home_page, construct_list_page};
+use crate::construct_page::{construct_home_page, construct_list_page, construct_restaurant_page};
 use crate::local_data::generate_data;
 use crate::repository::{CategoryRepository, RestaurantRepository};
 
@@ -39,6 +39,7 @@ async fn main() {
     handlebars.register_template_file("base", "templates/base.hbs").unwrap();
     handlebars.register_template_file("/", "templates/home.hbs").unwrap();
     handlebars.register_template_file("/list", "templates/list.hbs").unwrap();
+    handlebars.register_template_file("/restaurant/:restaurant_id", "templates/restaurant.hbs").unwrap();
 
     let api_routes = Router::new()
         .route("/categories", get(get_categories))
@@ -48,7 +49,8 @@ async fn main() {
 
     let page_routes = Router::new()
         .route("/", get(construct_home_page))
-        .route("/list", get(construct_list_page));
+        .route("/list", get(construct_list_page))
+        .route("/restaurant/:restaurant_id", get(construct_restaurant_page));
 
     let app = Router::new()
         .nest("/api", api_routes)
