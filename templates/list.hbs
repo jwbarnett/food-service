@@ -1,0 +1,17 @@
+{{#> base}}
+  {{#*inline "page"}}
+    <h1>Our favourite places</h1>
+
+    <ul>
+      {{#each categories}}
+        <h2>{{category_name}}</h2>
+        <ul>
+          {{#each restaurants}}
+            <li><a href="/restaurant/{{restaurant_id}}">{{restaurant_name}}</a></li>
+          {{/each}}
+        </ul>
+      {{/each}}
+    </ul>
+
+  {{/inline}}
+{{/base}}

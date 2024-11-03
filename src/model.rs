@@ -1,11 +1,40 @@
-use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use serde::{Deserialize, Serialize};
 use url::Url;
-use crate::category::model::CategoryId;
+
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct CategoryId(Uuid);
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct RestaurantId(Uuid);
 
+#[derive(Clone, Serialize, Deserialize)]
+pub struct Category {
+    pub id: CategoryId,
+    pub name: String
+}
+
+impl CategoryId {
+    pub fn new() -> Self {
+        CategoryId(Uuid::new_v4())
+    }
+}
+
+impl From<Uuid> for CategoryId {
+    fn from(uuid: Uuid) -> Self {
+        CategoryId(uuid)
+    }
+}
+
+impl Category {
+    pub fn new(name: &str) -> Self {
+        Category {
+            id: CategoryId::new(),
+            name: name.into()
+        }
+    }
+
+}
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Restaurant {

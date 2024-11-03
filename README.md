@@ -1,3 +1,3 @@
 # Food Service
 
-Backend for the food website
+Food website written using Rust with Axum as a web framework
