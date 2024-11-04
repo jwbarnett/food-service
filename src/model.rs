@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, NaiveDate, Utc};
 use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 use url::Url;
@@ -46,6 +46,7 @@ pub struct Restaurant {
     pub category_id: CategoryId,
     pub website_url: Url,
     pub source: Option<String>,
+    pub last_visit_date: Option<NaiveDate>,
     pub created_date_time: DateTime<Utc>
 }
 
@@ -68,6 +69,19 @@ impl Restaurant {
             category_id,
             website_url,
             source: None,
+            last_visit_date: None,
+            created_date_time: Utc::now()
+        }
+    }
+
+    pub fn new_with_last_visit(name: &str, category_id: CategoryId, website_url: Url, last_visit_date: NaiveDate) -> Self {
+        Restaurant {
+            id: RestaurantId::new(),
+            name: name.into(),
+            category_id,
+            website_url,
+            source: None,
+            last_visit_date: Some(last_visit_date),
             created_date_time: Utc::now()
         }
     }

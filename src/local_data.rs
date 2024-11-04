@@ -1,11 +1,12 @@
 use std::collections::HashMap;
+use chrono::NaiveDate;
 use url::Url;
 use crate::model::{Category, CategoryId, Restaurant, RestaurantId};
 
 pub fn generate_data() -> (HashMap<CategoryId, Category>, HashMap<RestaurantId, Restaurant>) {
     let ice_cream_category = Category::new("Ice Cream");
 
-    let oddonos = Restaurant::new("Oddono's", ice_cream_category.id, Url::try_from("http://www.oddonos.com").unwrap());
+    let oddonos = Restaurant::new("Oddono's", ice_cream_category.id, Url::try_from("https://www.oddonos.com").unwrap());
     let bilmonte = Restaurant::new("Bilmonte", ice_cream_category.id, Url::try_from("https://www.bilmonte.it").unwrap());
 
     let baked_goods_category = Category::new("Baked Goods");
@@ -50,7 +51,7 @@ pub fn generate_data() -> (HashMap<CategoryId, Category>, HashMap<RestaurantId, 
     let maki_yaki = Restaurant::new("Maki Yaki", japanese_restaurants_category.id, Url::try_from("https://makiyakiepsom.com").unwrap());
     let kintan = Restaurant::new("Kintan Japanese BBQ", japanese_restaurants_category.id, Url::try_from("https://kintan.uk").unwrap());
     let kampai = Restaurant::new("Kampai Sushi", japanese_restaurants_category.id, Url::try_from("https://www.kampaisushi.co.uk").unwrap());
-    let gyoza_san = Restaurant::new("Gyoza San", japanese_restaurants_category.id, Url::try_from("https://gyozasan.co.uk").unwrap());
+    let gyoza_san = Restaurant::new_with_last_visit("Gyoza San", japanese_restaurants_category.id, Url::try_from("https://gyozasan.co.uk").unwrap(), NaiveDate::from_ymd_opt(2024, 10, 24).unwrap());
 
     let coffee_category = Category::new("Coffee");
 

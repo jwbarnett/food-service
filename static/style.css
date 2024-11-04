@@ -4,6 +4,7 @@
 body {
     max-width: 800px;
     margin: auto;
+    padding: 10px;
     font-family: yorkten-slab-normal, sans-serif;
     font-style: normal;
     font-weight: 100;
@@ -30,15 +31,19 @@ ul {
     list-style: none;
 }
 
+li {
+    line-height: 1.4em;
+}
+
 .heading-large {
-    font-weight: 400;
+    font-weight: 200;
     font-size: 1.8rem;
     margin-top: 20px;
     margin-bottom: 5px;
 }
 
 .heading-medium {
-    font-weight: 300;
+    font-weight: 200;
     font-size: 1.4rem;
     margin-top: 20px;
     margin-bottom: 5px;
