@@ -2,6 +2,7 @@ use std::sync::Arc;
 use axum::{routing::get, Router};
 use axum_template::engine::Engine;
 use handlebars::Handlebars;
+use tower_http::services::ServeDir;
 use crate::aggregator::CategoryAggregator;
 use crate::api::{get_categories, get_category_by_id, get_restaurant_by_id, get_restaurants};
 use crate::construct_page::{construct_home_page, construct_list_page, construct_restaurant_page};
@@ -55,6 +56,7 @@ async fn main() {
     let app = Router::new()
         .nest("/api", api_routes)
         .nest("/", page_routes)
+        .nest_service("/static", ServeDir::new("static"))
         .with_state(AppState {
             category_repository,
             restaurant_repository,

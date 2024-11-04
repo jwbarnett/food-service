@@ -1,0 +1,22 @@
+:root {
+    --heading-font-family: proxima-nova, sans-serif;
+}
+body {
+    max-width: 1200px;
+    margin: auto;
+    font-family: yorkten-slab-normal, sans-serif;
+    font-style: normal;
+    font-weight: 100;
+}
+
+header {
+    margin-top: 10px;
+}
+
+h1 {
+    font-family: var(--heading-font-family);
+}
+
+h2 {
+    font-family: var(--heading-font-family);
+}
