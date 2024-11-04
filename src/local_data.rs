@@ -50,6 +50,7 @@ pub fn generate_data() -> (HashMap<CategoryId, Category>, HashMap<RestaurantId, 
     let maki_yaki = Restaurant::new("Maki Yaki", japanese_restaurants_category.id, Url::try_from("https://makiyakiepsom.com").unwrap());
     let kintan = Restaurant::new("Kintan Japanese BBQ", japanese_restaurants_category.id, Url::try_from("https://kintan.uk").unwrap());
     let kampai = Restaurant::new("Kampai Sushi", japanese_restaurants_category.id, Url::try_from("https://www.kampaisushi.co.uk").unwrap());
+    let gyoza_san = Restaurant::new("Gyoza San", japanese_restaurants_category.id, Url::try_from("https://gyozasan.co.uk").unwrap());
 
     let coffee_category = Category::new("Coffee");
 
@@ -110,6 +111,7 @@ pub fn generate_data() -> (HashMap<CategoryId, Category>, HashMap<RestaurantId, 
         (maki_yaki.id, maki_yaki.clone()),
         (kintan.id, kintan.clone()),
         (kampai.id, kampai.clone()),
+        (gyoza_san.id, gyoza_san.clone()),
         (formative.id, formative.clone()),
         (nostos.id, nostos.clone()),
         (julliets.id, julliets.clone()),
