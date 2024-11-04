@@ -1,8 +1,11 @@
 {{#> base}}
-    {{#*inline "page"}}
-        <h1>{{name}}</h1>
+  {{#*inline "page"}}
+    <h1 class="heading-large">{{name}}</h1>
 
-        <p><a href="{{website}}">{{website}}</a></p>
+    <dl>
+      <dt>Website</dt>
+      <dd><a href="{{website}}">{{website}}</a></dd>
+    </dl>
 
-    {{/inline}}
+  {{/inline}}
 {{/base}}
