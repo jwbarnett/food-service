@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 use url::Url;
@@ -11,7 +12,8 @@ pub struct RestaurantId(Uuid);
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Category {
     pub id: CategoryId,
-    pub name: String
+    pub name: String,
+    pub created_date_time: DateTime<Utc>
 }
 
 impl CategoryId {
@@ -30,7 +32,8 @@ impl Category {
     pub fn new(name: &str) -> Self {
         Category {
             id: CategoryId::new(),
-            name: name.into()
+            name: name.into(),
+            created_date_time: Utc::now(),
         }
     }
 
@@ -42,7 +45,8 @@ pub struct Restaurant {
     pub name: String,
     pub category_id: CategoryId,
     pub website_url: Url,
-    pub source: Option<String>
+    pub source: Option<String>,
+    pub created_date_time: DateTime<Utc>
 }
 
 impl RestaurantId {
@@ -63,7 +67,8 @@ impl Restaurant {
             name: name.into(),
             category_id,
             website_url,
-            source: None
+            source: None,
+            created_date_time: Utc::now()
         }
     }
 }

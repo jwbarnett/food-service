@@ -19,8 +19,11 @@ impl CategoryAggregator {
     pub fn aggregate(&self) -> Vec<CategoriesWithRestaurants> {
         let result: &mut Vec<CategoriesWithRestaurants> = &mut Vec::new();
 
-        let categories = self.category_repository.get_all();
-        let restaurants = self.restaurant_repository.get_all();
+        let mut categories = self.category_repository.get_all();
+        categories.sort_by(|a, b| a.name.cmp(&b.name));
+
+        let mut restaurants = self.restaurant_repository.get_all();
+        restaurants.sort_by(|a, b| a.name.cmp(&b.name));
 
         for category in categories {
             let restaurants_in_category = &mut Vec::new();
